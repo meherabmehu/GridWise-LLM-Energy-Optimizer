@@ -507,6 +507,22 @@ and the full official sample pack was run against it:
 PASS SAMPLE-01 .. PASS SAMPLE-10        10/10 cases passed
 ```
 
+Every one of those responses was produced by the language model rather than the
+fallback interpreter — the service logs `source=llm` for all ten scenarios:
+
+```
+gridwise scenario SAMPLE-10 solved: 3 directive(s), 2715.00 kWh, 41620.00 BDT, source=llm
+```
+
+Uncached end-to-end calls, measured from outside against the same URL with six
+fresh operator-note phrasings (one per scenario, cache defeats confirmed):
+
+```
+0.78 s  0.50 s  0.45 s  0.40 s  0.81 s  0.63 s      p50 0.56 s, max 0.81 s
+```
+
+against the 30 s request timeout and the 5 s p95 target.
+
 ## Project layout
 
 ```
@@ -575,6 +591,14 @@ model output, and never leaks credentials, prompts or stack traces.
   model is recommended for evaluation.
 - **Ephemeral public URL.** The verified URL is a Cloudflare quick tunnel, which
   has no uptime guarantee. Use the deployment bundle for a permanent URL.
+- **Docker build not exercised in the authoring environment.** The image was
+  written and reviewed but no Docker daemon was available where it was built, so
+  `docker build` itself was not run. The container's runtime path was instead
+  reproduced exactly — a clean virtual environment holding only the runtime
+  requirements, the same `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+  command, and both endpoints exercised against it (`/health` 200, SAMPLE-09
+  `34873.00 BDT`). Run `docker build` once on a machine with Docker to close this
+  gap.
 - **Whole-hour resolution.** Windows are whole hours; sub-hour windows are out of
   scope for this challenge.
 - **No grid export.** As specified, surplus solar is curtailed rather than sold.
