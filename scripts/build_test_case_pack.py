@@ -92,6 +92,34 @@ PARAPHRASE_CASES: List[Dict[str, Any]] = [
     },
 ]
 
+# Two cases built specifically to exercise language understanding: one buries a
+# constraint inside a chatty two-sentence note whose first sentence is a
+# distractor, the other depends on negation. Both were measured against the live
+# service before being written down here.
+LLM_CASES: List[Dict[str, Any]] = [
+    {
+        "id": "L1",
+        "title_en": "LLM test - a distractor sentence, then a casually worded grid limit",
+        "title_bn": "LLM test - প্রথম বাক্যটা অপ্রাসঙ্গিক, দ্বিতীয়টায় ঘরোয়া ভাষায় grid সীমা",
+        "note": "Rumour has it the canteen is closing for renovation next month. Meanwhile the substation "
+                "crew asked us to be gentle on the grid between 6 and 10 PM - keep any single hour under "
+                "150 kWh.",
+        "expected_en": "max_grid_window, hours [18, 19, 20, 21], max_grid_kwh 150.0",
+        "expected_bn": "max_grid_window, hours [18, 19, 20, 21], max_grid_kwh 150.0",
+        "totals": "2430.00 kWh / 33950.00 BDT / peak 175.00 kWh",
+    },
+    {
+        "id": "L2",
+        "title_en": "LLM test - negation: night charging is fine, no top-up from 4 AM to 7 AM",
+        "title_bn": "LLM test - negation: রাতে চার্জ করা ঠিক আছে, ভোর ৪টা থেকে ৭টা নয়",
+        "note": "Charging through the night is fine. Just don't top the battery up between 4 and 7 in the "
+                "morning while the inverter is being serviced.",
+        "expected_en": "no_charge_window, hours [4, 5, 6]",
+        "expected_bn": "no_charge_window, hours [4, 5, 6]",
+        "totals": "2430.00 kWh / 34010.00 BDT / peak 175.00 kWh",
+    },
+]
+
 MULTI_NOTE = {
     "id": "M1",
     "title_en": "Two notes at once - solar reduction and a battery reserve",
@@ -233,7 +261,27 @@ def build_pack() -> Dict[str, Any]:
             }
         )
 
-    # 3. multi-note case
+    # 3. cases built specifically to exercise language understanding
+    for spec in LLM_CASES:
+        payload = copy.deepcopy(base)
+        payload["scenario_id"] = "LLM-TEST-" + spec["id"][1:]
+        payload["operator_notes"] = [spec["note"]]
+        entries.append(
+            {
+                "id": spec["id"],
+                "group": "llm",
+                "title_en": spec["title_en"],
+                "title_bn": spec["title_bn"],
+                "notes": [spec["note"]],
+                "body": render_body(payload),
+                "expected_en": spec["expected_en"],
+                "expected_bn": spec["expected_bn"],
+                "totals": spec["totals"],
+                "source": "verified against the live service",
+            }
+        )
+
+    # 4. multi-note case
     payload = copy.deepcopy(base)
     payload["scenario_id"] = "MULTI-1"
     payload["operator_notes"] = MULTI_NOTE["notes"]
@@ -259,6 +307,12 @@ def build_pack() -> Dict[str, Any]:
         "live_url": LIVE,
         "repository": REPO,
         "endpoints": {"health": "GET /health", "optimize": "POST /optimize-energy"},
+        "case_groups": {
+            "official": "the ten public sample cases shipped by the organisers",
+            "paraphrase": "one fresh wording per supported directive type",
+            "llm": "cases that only work if the model understands language, not keywords",
+            "multi-note": "several operator notes in a single request",
+        },
         "directive_types": [
             "solar_reduction",
             "minimum_battery_reserve",
@@ -318,11 +372,11 @@ def write_files(pack: Dict[str, Any]) -> None:
 def main() -> None:
     pack = build_pack()
     write_files(pack)
-    official = sum(1 for case in pack["cases"] if case["group"] == "official")
-    print(f"all-test-cases.json : {official} official + "
-          f"{sum(1 for c in pack['cases'] if c['group'] == 'paraphrase')} paraphrase + "
-          f"{sum(1 for c in pack['cases'] if c['group'] == 'multi-note')} multi-note cases, "
-          f"{len(pack['error_cases'])} error cases")
+    counts = {}
+    for case in pack["cases"]:
+        counts[case["group"]] = counts.get(case["group"], 0) + 1
+    summary = " + ".join(f"{count} {name}" for name, count in sorted(counts.items()))
+    print(f"all-test-cases.json : {len(pack['cases'])} cases ({summary}), {len(pack['error_cases'])} error cases")
     print(f"request bodies      : {len(list(BODIES_DIR.glob('*.json')))} files in docs/test-cases/request-bodies/")
     import test_case_pdf
     test_case_pdf.write_pdfs(pack)

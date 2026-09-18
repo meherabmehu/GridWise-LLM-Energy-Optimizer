@@ -31,7 +31,12 @@ COVERAGE = [
     ("no_op", "SAMPLE-01, SAMPLE-06, SAMPLE-09, SAMPLE-10", "P6"),
 ]
 
-GROUP_LABEL = {"official": "official", "paraphrase": "paraphrase", "multi-note": "multi-note"}
+GROUP_LABEL = {
+    "official": "official",
+    "paraphrase": "paraphrase",
+    "llm": "LLM test",
+    "multi-note": "multi-note",
+}
 
 
 def coverage_table(lang: str) -> str:

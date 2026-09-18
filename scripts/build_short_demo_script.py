@@ -30,7 +30,8 @@ LIVE = "https://brian-sheffield-surely-fly.trycloudflare.com"
 REPO = "https://github.com/meherabmehu/GridWise-LLM-Energy-Optimizer"
 
 # --------------------------------------------------------------------------- script
-# Three parts, 150 seconds total: intro 30s, three cases 90s, robustness 30s.
+# Two minutes forty seconds in three parts: intro 30s, what the model does 10s,
+# three cases 80s, robustness 25s, close 15s.
 BEATS: List[Dict[str, Any]] = [
     {
         "part": "PART 1 &mdash; INTRO",
@@ -40,9 +41,9 @@ BEATS: List[Dict[str, Any]] = [
         "say": "This is GridWise. A campus needs the cheapest possible plan for the next twenty-four hours "
                "of electricity. Every hour has a demand, some solar, and a price, and there is one battery. "
                "The instructions arrive as a few sentences written in plain English.",
-        "bn_say": "ক্যাম্পাসের ২৪ ঘণ্টার বিদ্যুতের plan বানাতে হবে। প্রতি ঘণ্টায় demand, solar আর দাম আছে; "
-                  "একটা battery আছে। সবচেয়ে কম খরচের plan বানানোই লক্ষ্য। আর আমাদের হাতে শুধু মানুষের লেখা "
-                  "কয়েকটা সাধারণ ইংরেজি বাক্য থাকে — operator notes।",
+        "bn_say": "ক্যাম্পাসের ২৪ ঘণ্টার বিদ্যুতের সবচেয়ে কম খরচের plan বানাতে হবে। প্রতি ঘণ্টায় demand, solar "
+                  "আর দাম আছে; একটা battery আছে। আর আমাদের হাতে শুধু মানুষের লেখা কয়েকটা সাধারণ ইংরেজি বাক্য "
+                  "থাকে — operator notes।",
         "do": "Do not scroll. Speak calmly.",
         "tip": "Keep this short. You have only thirty seconds for the whole introduction.",
     },
@@ -55,87 +56,102 @@ BEATS: List[Dict[str, Any]] = [
                "structured directives &mdash; it never does the maths. Guardrails then check that output, so "
                "it cannot change the data. And a solver builds the cheapest valid plan, which a validator "
                "checks before we reply.",
-        "bn_say": "আমাদের সমাধান তিন ভাগে: (১) আসল ভাষা-মডেল শুধু note পড়ে structured directive বের করে — "
-                  "কোনো হিসাব করে না। (২) guardrail সেই উত্তর যাচাই করে, তাই data বদলানো বা কিছু বানানো "
-                  "সম্ভব নয়। (৩) solver সবচেয়ে কম খরচের বৈধ plan বানায়, আর reply দেওয়ার আগে validator "
-                  "সেটা মিলিয়ে দেখে।",
+        "bn_say": "আমাদের সমাধান তিন ভাগে: (১) আসল ভাষা-মডেল note পড়ে শুধু structured directive বের করে — "
+                  "হিসাব করে না। (২) guardrail সেই উত্তর যাচাই করে, তাই data বদলানো সম্ভব নয়। (৩) solver "
+                  "সবচেয়ে কম খরচের বৈধ plan বানায়, আর reply দেওয়ার আগে validator সেটা মিলিয়ে দেখে।",
         "do": "No mouse movement. This is the only technical sentence in the video.",
         "tip": "Say &ldquo;it never does the maths&rdquo; slowly. That is the line judges listen for.",
     },
     {
+        "part": "PART 1 &mdash; THE MODEL",
+        "time": "0:30 &ndash; 0:40",
+        "title": "What the language model actually does",
+        "screen": "Whatever is on screen &mdash; do not move the mouse",
+        "say": "So what does the language model actually do? It turns a sentence into structure: which rule, "
+               "which hours, which value. Nothing else &mdash; the maths stays with the solver.",
+        "bn_say": "তাহলে ভাষা-মডেলটা আসলে কী করে? সে একটা বাক্যকে গঠনে বদলায়: কোন নিয়ম, কোন ঘণ্টা, কত মান। "
+                  "এর বেশি কিছু নয় — হিসাবটা solver-এর হাতে থাকে।",
+        "do": "Hold still. Ten seconds, no clicks.",
+        "tip": "This beat exists because judges specifically ask &ldquo;what is the model doing?&rdquo; "
+               "Answer it before they ask.",
+    },
+    {
         "part": "PART 2 &mdash; CASE 1",
-        "time": "0:30 &ndash; 1:00",
+        "time": "0:40 &ndash; 1:05",
         "title": "Official case one: two notes, one of them unrelated",
         "screen": "<span class='mono'>/docs</span> &rarr; POST /optimize-energy &rarr; Try it out &rarr; "
                   "paste CASE 1 &rarr; Execute",
-        "say": "First case. The panels are washed from noon to two PM, so usable solar drops to "
-               "twenty-five percent. The second note is about a registration deadline &mdash; nothing to do "
-               "with energy. Look at the result: solar reduction, factor zero point two five, hours twelve "
-               "and thirteen. And the unrelated note becomes no-op &mdash; the model did not invent a rule. "
-               "Total cost, thirty-eight thousand three hundred sixty-five: the official optimum.",
-        "bn_say": "প্রথম case: দুপুর ১২টা থেকে ২টা পর্যন্ত প্যানেল ধোয়া হবে, তাই solar ২৫% হয়ে যাবে। দ্বিতীয় note "
-                  "আসলে বিদ্যুতের সাথে সম্পর্কহীন (registration deadline)। ফলাফলে দেখো — solar_reduction, "
-                  "factor 0.25, hours 12 ও 13। আর অসম্পর্কিত note হয়ে গেছে no_op — মানে মডেল বাড়তি নিয়ম "
-                  "বানায়নি। খরচ ৩৮,৩৬৫ BDT, যেটা official optimum।",
-        "do": "Paste, Execute, wait one second, then move the mouse to the total cost and leave it there.",
-        "tip": "<b>The no-op is the point.</b> Say it clearly &mdash; it proves the model is not hallucinating rules.",
+        "say": "First case, an official sample. The panels are washed from noon to two PM, so usable solar "
+               "drops to twenty-five percent. The second note is about a registration deadline &mdash; "
+               "nothing to do with energy. Solar reduction, factor zero point two five, hours twelve and "
+               "thirteen &mdash; and the unrelated note becomes no-op. Total cost: thirty-eight thousand "
+               "three hundred sixty-five, the official optimum.",
+        "bn_say": "প্রথম case, official sample। দুপুর ১২টা থেকে ২টা প্যানেল ধোয়া, তাই solar ২৫%। দ্বিতীয় note "
+                  "বিদ্যুতের সাথে সম্পর্কহীন (registration deadline)। ফল: solar_reduction, factor 0.25, "
+                  "hours 12 ও 13 — আর অসম্পর্কিত note → no_op। খরচ ৩৮,৩৬৫ BDT, যেটা official optimum।",
+        "do": "Paste, Execute, wait one second, then rest the mouse on the total cost.",
+        "tip": "<b>The no-op is the point.</b> Say it clearly &mdash; the model did not invent a rule.",
     },
     {
         "part": "PART 2 &mdash; CASE 2",
-        "time": "1:00 &ndash; 1:30",
+        "time": "1:05 &ndash; 1:30",
         "title": "Official case two: a limit on grid import",
         "screen": "Same page &rarr; paste CASE 2 &rarr; Execute",
-        "say": "Second case. Grid import is capped at one hundred fifty-five kilowatt-hours between six and "
-               "nine in the evening. The interpreter gives hours eighteen, nineteen and twenty &mdash; the "
-               "start hour counts, the end hour does not, which is the rule in the official data. The plan "
-               "now costs thirty-three thousand nine hundred fifty, and that is also the official optimum.",
-        "bn_say": "দ্বিতীয় case: সন্ধ্যা ৬টা থেকে ৯টা পর্যন্ত grid import সর্বোচ্চ ১৫৫ kWh। Interpreter দিল hours "
-                  "18, 19, 20 — শুরুটা ধরা হয়, শেষটা ধরা হয় না (official data-র নিয়ম)। খরচ ৩৩,৯৫০ BDT — "
-                  "এটাও official optimum।",
+        "say": "Second case, also official. Grid import is capped at one hundred fifty-five kilowatt-hours "
+               "between six and nine in the evening. The interpreter gives hours eighteen, nineteen and "
+               "twenty &mdash; the start hour counts, the end hour does not, which is the rule in the "
+               "official data. The plan costs thirty-three thousand nine hundred fifty: the official "
+               "optimum again.",
+        "bn_say": "দ্বিতীয় case-ও official। সন্ধ্যা ৬টা থেকে ৯টা grid import সর্বোচ্চ ১৫৫ kWh। Interpreter দিল "
+                  "hours 18, 19, 20 — শুরুর ঘণ্টা ধরা হয়, শেষেরটা নয় (official নিয়ম)। খরচ ৩৩,৯৫০ BDT — "
+                  "আবারও official optimum।",
         "do": "Point at the hours list, then at the total cost.",
         "tip": "Saying &ldquo;the end hour does not count&rdquo; shows you read the official rule.",
     },
     {
         "part": "PART 2 &mdash; CASE 3",
         "time": "1:30 &ndash; 2:00",
-        "title": "Case three: the same rule, in different words (most important)",
+        "title": "Case three: our language test &mdash; the most important one",
         "screen": "Same page &rarr; paste CASE 3 &rarr; Execute",
-        "say": "Third case, and this is the important one. This note is not in the official samples, and the "
-               "words are completely different. It says the feeder is limited, so keep import under one "
-               "hundred fifty-five. Different words, but the same directive, the same hours, the same limit. "
-               "That is generalisation, not keyword matching &mdash; and the hidden tests use new wording, "
-               "so this is the part that matters most.",
-        "bn_say": "তৃতীয় case — এটাই সবচেয়ে গুরুত্বপূর্ণ। এই note official sample-এ নেই, ভাষাও একেবারে আলাদা। "
-                  "তবু একই directive, একই hours, একই limit পাওয়া গেল। মানে এটা keyword matching নয়, আসল "
-                  "বোঝাপড়া — আর hidden test-এ নতুন ভাষাতেই note আসবে, তাই এটাই সবচেয়ে জরুরি প্রমাণ।",
-        "do": "Let the response stay on screen for a beat before you speak the last sentence.",
+        "say": "Third case is the language test. Two sentences, and only the second one matters &mdash; the "
+               "first is about the canteen. In casual words it asks us to be gentle on the grid between six "
+               "and ten PM, under one hundred fifty kWh an hour. The model ignored the canteen and returned "
+               "a grid cap: hours eighteen to twenty-one, limit one hundred fifty. Same meaning, new words "
+               "&mdash; that is understanding, not keyword matching.",
+        "bn_say": "তৃতীয় case-টাই ভাষার পরীক্ষা। দুইটা বাক্য, কিন্তু কাজের শুধু দ্বিতীয়টা — প্রথমটা canteen নিয়ে। "
+                  "ঘরোয়া ভাষায় বলা হয়েছে: সন্ধ্যা ৬টা থেকে ১০টা grid-এর উপর চাপ কম রাখো, ঘণ্টায় ১৫০ kWh-র "
+                  "নিচে। মডেল canteen-এর বাক্যটা বাদ দিয়ে দিল grid cap — hours 18–21, limit 150। একই অর্থ, "
+                  "নতুন ভাষা — এটা বোঝাপড়া, keyword matching নয়।",
+        "do": "Let the response sit on screen for a beat before the last sentence.",
         "tip": "<b>This is the highest-value moment of the video.</b> Slow down and give it your clearest voice.",
     },
     {
         "part": "PART 3 &mdash; ROBUSTNESS",
-        "time": "2:00 &ndash; 2:20",
-        "title": "Bad input, and other cases that also pass",
+        "time": "2:00 &ndash; 2:25",
+        "title": "Bad input, and two more notes that also work",
         "screen": "Type <span class='mono'>/no-such-path</span>, then <span class='mono'>/optimize-energy</span> "
                   "in the address bar",
-        "say": "Bad input never breaks it. A wrong path gives four-oh-four, a GET on the POST endpoint gives "
-               "four-oh-five, and a broken body gives four hundred with a clean message &mdash; no crash, no "
-               "API key. Two more notes also work: an unrelated one becomes no-op, and a charging ban from "
-               "two to five AM becomes a no-charge window.",
-        "bn_say": "খারাপ input-এ কিছুই ভাঙে না: ভুল path → 404, POST endpoint-এ GET → 405, ভাঙা body → 400 "
-                  "পরিষ্কার message দিয়ে; crash নেই, key ফাঁস নেই। আরও দুইটা note-ও চেষ্টা করেছি — অসম্পর্কিত "
-                  "note → no_op, আর রাত ২টা থেকে ৫টা চার্জ বন্ধ → no_charge_window।",
-        "do": "Show the 404 page for two seconds, then move on. Do not read the JSON on screen.",
-        "tip": "Speak the numbers as words: &ldquo;four-oh-four&rdquo;. It sounds natural and is easy to follow.",
+        "say": "Bad input never breaks it: a wrong path gives four-oh-four, a GET on the POST endpoint gives "
+               "four-oh-five, a broken body gives four hundred with a clean message &mdash; no crash, no API "
+               "key. Two more notes work as well: an unrelated one becomes no-op, and a negation &mdash; "
+               "charging is fine, but do not top up between four and seven &mdash; becomes a no-charge "
+               "window for hours four, five and six.",
+        "bn_say": "খারাপ input-এ কিছু ভাঙে না: ভুল path → 404, POST endpoint-এ GET → 405, ভাঙা body → 400 "
+                  "পরিষ্কার message দিয়ে; crash নেই, key ফাঁস নেই। আরও দুইটা note কাজ করে: অসম্পর্কিত note → "
+                  "no_op, আর একটা negation — “রাতে চার্জ করা ঠিক আছে, তবে ভোর ৪টা থেকে ৭টা নয়” → "
+                  "no_charge_window, hours 4, 5, 6।",
+        "do": "Show the two error pages briefly &mdash; two seconds each. Do not read the JSON aloud.",
+        "tip": "Speak the codes as words: &ldquo;four-oh-four&rdquo;. It sounds natural and is easy to follow.",
     },
     {
         "part": "PART 3 &mdash; CLOSE",
-        "time": "2:20 &ndash; 2:30",
+        "time": "2:25 &ndash; 2:40",
         "title": "Close",
         "screen": "Back on the <span class='mono'>/health</span> page",
-        "say": "All ten official cases match the published optimum, and the response comes back in under two "
-               "seconds. The same code runs locally, in Docker, and on this public link. Thank you.",
-        "bn_say": "Official ১০টা case-ই published optimum-এর সাথে মিলে যায়, আর উত্তর আসে ২ সেকেন্ডের কমে। একই "
-                  "code local-এ, Docker-এ আর এই public link-এ চলে। ধন্যবাদ।",
+        "say": "All ten official cases match the published optimum, and a response comes back in under two "
+               "seconds. Same code locally, in Docker, and on this public link. Thank you.",
+        "bn_say": "Official ১০টা case-ই published optimum-এর সাথে মিলে যায়, আর উত্তর আসে ২ সেকেন্ডের কমে। "
+                  "একই code local-এ, Docker-এ আর এই public link-এ চলে। ধন্যবাদ।",
         "do": "Stop moving the mouse. Say the last two sentences slowly, then stop recording.",
         "tip": "Do not add anything after &ldquo;thank you&rdquo;.",
     },
@@ -145,9 +161,9 @@ BEATS: List[Dict[str, Any]] = [
 CASE_FILES = [
     ("CASE 1", "sample-01.json", "official", True),
     ("CASE 2", "sample-05.json", "official", True),
-    ("CASE 3", "p5.json", "fresh paraphrase", True),
+    ("CASE 3", "l1.json", "LLM test", True),
     ("CASE 4", "p6.json", "fresh paraphrase", False),
-    ("CASE 5", "p3.json", "fresh paraphrase", False),
+    ("CASE 5", "l2.json", "LLM test", False),
 ]
 
 CASE_META = {
@@ -155,7 +171,7 @@ CASE_META = {
         "title_en": "Official sample SAMPLE-01 &mdash; solar reduction, plus a note to ignore",
         "title_bn": "Official SAMPLE-01 &mdash; সোলার হ্রাস, সাথে একটা note বাদ দিতে হবে",
         "proves_en": "The model reads two notes at once and returns no-op for the unrelated one.",
-        "proves_bn": "মডেল একসাথে দুইটা note পড়ে, আর অসম্পর্কিত note-টাকে no_op করে দেয়।",
+        "proves_bn": "মডেল একসাথে দুইটা note পড়ে, আর অসম্পর্কিতটাকে no_op করে দেয়।",
         "expect_en": "solar_reduction (hours [12, 13], factor 0.25) then no_op (applies false)",
         "expect_bn": "solar_reduction (hours [12, 13], factor 0.25), তারপর no_op (applies false)",
         "totals": "2692.50 kWh / 38365.00 BDT / peak 175.00 kWh",
@@ -172,12 +188,14 @@ CASE_META = {
         "official": "official optimum for this case: 2430.00 / 33950.00 / 175",
     },
     "CASE 3": {
-        "title_en": "Fresh paraphrase of the same limit &mdash; the generalisation proof",
-        "title_bn": "একই সীমার নতুন ভাষা &mdash; generalisation-এর প্রমাণ",
-        "proves_en": "New wording, not from the sample set, resolves to the same directive.",
-        "proves_bn": "sample-এ নেই এমন নতুন ভাষা, তবু একই directive পাওয়া যায়।",
-        "expect_en": "max_grid_window (hours [18, 19, 20], max_grid_kwh 155.0)",
-        "expect_bn": "max_grid_window (hours [18, 19, 20], max_grid_kwh 155.0)",
+        "title_en": "Language test &mdash; a distractor sentence, then a casually worded grid limit",
+        "title_bn": "ভাষার পরীক্ষা &mdash; প্রথম বাক্যটা অপ্রাসঙ্গিক, দ্বিতীয়টায় ঘরোয়া ভাষায় grid সীমা",
+        "proves_en": "The model keeps the real instruction, ignores the canteen sentence, and extracts the "
+                     "window and the limit from casual wording. A keyword matcher fails here.",
+        "proves_bn": "মডেল আসল নির্দেশনাটা রাখে, canteen-এর বাক্য বাদ দেয়, আর ঘরোয়া ভাষা থেকেই window ও limit "
+                     "বের করে। Keyword matching এখানে ফেল করবে।",
+        "expect_en": "max_grid_window (hours [18, 19, 20, 21], max_grid_kwh 150.0)",
+        "expect_bn": "max_grid_window (hours [18, 19, 20, 21], max_grid_kwh 150.0)",
         "totals": "2430.00 kWh / 33950.00 BDT / peak 175.00 kWh",
         "official": "",
     },
@@ -192,13 +210,15 @@ CASE_META = {
         "official": "",
     },
     "CASE 5": {
-        "title_en": "Charging ban from 2 AM to 5 AM",
-        "title_bn": "রাত ২টা থেকে ৫টা চার্জ বন্ধ",
-        "proves_en": "A brand-new note, resolved into a no-charge window.",
-        "proves_bn": "সম্পূর্ণ নতুন note, যেটা no_charge_window হয়ে যায়।",
-        "expect_en": "no_charge_window (hours [2, 3, 4])",
-        "expect_bn": "no_charge_window (hours [2, 3, 4])",
-        "totals": "2430.00 kWh / 34130.00 BDT / peak 175.00 kWh",
+        "title_en": "Language test &mdash; negation: night charging is fine, no top-up 4 AM to 7 AM",
+        "title_bn": "ভাষার পরীক্ষা &mdash; negation: রাতে চার্জ চলবে, ভোর ৪টা থেকে ৭টা নয়",
+        "proves_en": "The model handles negation: it allows overnight charging and blocks only the stated "
+                     "window, instead of blocking charging entirely.",
+        "proves_bn": "মডেল negation বোঝে: রাতের চার্জ চালু রাখে, শুধু বলা ঘণ্টাগুলো বন্ধ করে — পুরো चाর্জ "
+                     "বন্ধ করে দেয় না।".replace("चाর্জ", "চার্জ"),
+        "expect_en": "no_charge_window (hours [4, 5, 6])",
+        "expect_bn": "no_charge_window (hours [4, 5, 6])",
+        "totals": "2430.00 kWh / 34010.00 BDT / peak 175.00 kWh",
         "official": "",
     },
 }
@@ -336,10 +356,10 @@ def error_section(bangla: bool) -> str:
 # --------------------------------------------------------------------------- documents
 def script_document(bangla: bool) -> str:
     if bangla:
-        title = "GridWise &mdash; ২:৩০ মিনিটের Demo Script"
-        lead = ("তিন ভাগে সাজানো: প্রথম ৩০ সেকেন্ডে সমস্যা ও সমাধান, পরের ১ মিনিট ৩০ সেকেন্ডে "
-                "তিনটা সবচেয়ে গুরুত্বপূর্ণ test case, শেষ ৩০ সেকেন্ডে error handling ও শেষ কথা। "
-                "প্রতিটা ধাপে আছে — স্ক্রিনে কী করবে, ইংরেজিতে হুবহু কী বলবে, আর ছোট করে তার মানে।")
+        title = "GridWise &mdash; ২:৪০ মিনিটের Demo Script"
+        lead = ("প্রথম ৩০ সেকেন্ডে সমস্যা ও সমাধান, তারপর ১০ সেকেন্ডে ভাষা-মডেলটা আসলে কী করে, "
+                "এরপর ৮০ সেকেন্ডে তিনটা সবচেয়ে গুরুত্বপূর্ণ test case, আর শেষে error handling ও শেষ কথা — "
+                "মোট ২:৪০। প্রতিটা ধাপে আছে — স্ক্রিনে কী করবে, ইংরেজিতে হুবহু কী বলবে, আর ছোট করে তার মানে।")
         steps_head = "রেকর্ড করার আগে"
         steps = [
             "tunnel-এর window খোলা রাখো, laptop চার্জারে, sleep বন্ধ।",
@@ -350,7 +370,7 @@ def script_document(bangla: bool) -> str:
         script_head = "স্ক্রিপ্ট"
         cases_head = "ভিডিওতে যেই তিনটা case দেখাবে"
         error_head = "শেষ ৩০ সেকেন্ডে error দেখানোর ধাপ"
-        note = ("<b>সময়ের হিসাব:</b> narration মোট ৪০০ শব্দের মতো — স্বাভাবিক গতিতে ২:৩০। "
+        note = ("<b>সময়ের হিসাব:</b> narration মোট ৪০০ শব্দের মতো — স্বাভাবিক গতিতে ২:৪০। "
                 "তাড়াহুড়া করবে না; একটু কম বলে ফেললেও ক্ষতি নেই, কিন্তু তাড়াতাড়ি পড়লে judge কিছু "
                 "বুঝতেই পারবেন না।")
         delivery_head = "বলার সময় খেয়াল রাখো"
@@ -361,10 +381,11 @@ def script_document(bangla: bool) -> str:
             "সংখ্যাগুলো কথা বলে বলো: ৩৮,৩৬৫ মানে &ldquo;thirty-eight thousand three hundred sixty-five&rdquo;।",
         ]
     else:
-        title = "GridWise &mdash; 2:30 Demo Script"
-        lead = ("Three parts: the problem and our solution in the first thirty seconds, the three most "
-                "important test cases in the next ninety seconds, then error handling and the close. "
-                "Every beat tells you what to do on screen, exactly what to say, and how to say it.")
+        title = "GridWise &mdash; 2:40 Demo Script"
+        lead = ("The problem and our solution in the first thirty seconds, ten seconds on what the language "
+                "model actually does, the three most important test cases in the next eighty seconds, then "
+                "error handling and the close. Every beat tells you what to do on screen, exactly what to "
+                "say, and how to say it.")
         steps_head = "Before you press record"
         steps = [
             "Tunnel window open, laptop on the charger, sleep disabled.",
@@ -375,7 +396,7 @@ def script_document(bangla: bool) -> str:
         script_head = "The script"
         cases_head = "The three cases shown in the video"
         error_head = "Error steps for the last thirty seconds"
-        note = ("<b>Timing.</b> The narration is about four hundred words, which is 2:30 at a calm pace. "
+        note = ("<b>Timing.</b> The narration is about four hundred words, which is 2:40 at a calm pace. "
                 "Do not rush. Speaking a little less is fine; speaking too fast loses the judge completely.")
         delivery_head = "Delivery notes"
         delivery = [
@@ -394,7 +415,7 @@ def script_document(bangla: bool) -> str:
         f'<div class="meta">'
         f'<div><span class="k">Live URL</span><span class="mono">{LIVE}</span></div>'
         f'<div><span class="k">Repository</span><span class="mono">{REPO}</span></div>'
-        f'<div><span class="k">Structure</span>0:00 intro &middot; 0:30 cases &middot; 2:00 robustness &middot; 2:20 close</div>'
+        f'<div><span class="k">Structure</span>0:00 intro &middot; 0:30 the model &middot; 0:40 three cases &middot; 2:00 robustness &middot; 2:25 close</div>'
         f"</div></div>"
         f"<h2>{steps_head}</h2><ul class='tight'>{bullets}</ul>"
         f"<h2>{script_head}</h2>{beats_html(bangla)}"
@@ -454,7 +475,7 @@ if __name__ == "__main__":
     words = speakable_words()
     seconds = words / 165 * 60
     print(f"narration: {words} words -> {int(seconds) // 60}:{int(seconds) % 60:02d} at 165 wpm "
-          f"(plus screen pauses, target 2:30)")
+          f"(plus screen pauses, target 2:40)")
     for index, beat in enumerate(BEATS, start=1):
         count = len([w for w in re.sub(r"<[^>]+>", "", beat["say"]).split() if any(c.isalnum() for c in w)])
         print(f"  beat {index}: {count:3} words  {beat['time'].replace('&ndash;', '-')}  {beat['title']}")
