@@ -1,0 +1,23 @@
+# Keep the runtime image small and free of local state and secrets.
+.git
+.gitignore
+.github
+.venv
+venv
+ENV
+__pycache__
+**/__pycache__
+*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+tests
+deploy
+.env
+.env.*
+*.log
+*.pem
+*.key
+.DS_Store
