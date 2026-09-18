@@ -1,0 +1,52 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.so
+
+# Packaging / build
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Test and coverage artifacts
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+# Secrets - never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+.secrets/
+credential*.json
+
+# Editors and OS files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local scratch output
+scratch/
+tmp/
+*.log
