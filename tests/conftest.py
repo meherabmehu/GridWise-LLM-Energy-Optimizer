@@ -47,7 +47,11 @@ class StubInterpreter:
         self.calls = 0
 
     async def interpret(
-        self, scenario_id: str, notes: Sequence[str], battery: BatterySpec
+        self,
+        scenario_id: str,
+        notes: Sequence[str],
+        battery: BatterySpec,
+        hours: Sequence[Any] | None = None,
     ) -> InterpretationOutcome:
         self.calls += 1
         payload = self.payloads.get(scenario_id, self.default)
@@ -74,7 +78,7 @@ def make_client():
 
     def _make(interpreter: Any):
         app = create_app()
-        client = TestClient(app)
+        client = TestClient(app, raise_server_exceptions=False)
         client.__enter__()
         client.app.state.interpreter = interpreter
         return client

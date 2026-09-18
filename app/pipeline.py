@@ -123,7 +123,7 @@ def _solve(
 async def optimize(request: ScenarioRequest, interpreter: LLMInterpreter) -> PipelineResult:
     """Run the full interpretation and optimization pipeline for one scenario."""
     outcome = await interpreter.interpret(
-        request.scenario_id, request.operator_notes, request.battery
+        request.scenario_id, request.operator_notes, request.battery, request.hours
     )
 
     constraints = build_constraints(request.hours, request.battery, outcome.directives)

@@ -40,7 +40,7 @@ from app.directives import (
     no_op,
 )
 from app.guardrails import GuardrailResult, sanitize_interpretation
-from app.models import BatterySpec, DirectiveType, HOURS_PER_DAY
+from app.models import BatterySpec, DirectiveType, HOURS_PER_DAY, HourEntry
 
 LOGGER = logging.getLogger("gridwise.interpreter")
 
@@ -61,6 +61,8 @@ TIME: whole hours 0-23 on a 24h clock (noon=12, 3PM=15, 6PM=18, midnight=0). A w
 "1 PM to 3 PM"->[13,14] | "6 PM until 9 PM"->[18,19,20] | "2 AM until 5 AM"->[2,3,4] | "noon until 2 PM"->[12,13] | "11 AM until 1 PM"->[11,12]
 Hours are unique ascending integers. If a rule clearly applies all day and no window is stated use [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23].
 
+AMBIGUOUS TIMES: if a note is about solar output but the hours you derived contain no daylight from the supplied daylight_hours list, the speaker meant the daytime window - add 12 hours. Panel work is never scheduled at night.
+
 OUTPUT: exactly one entry per note in note_index order 0..N-1, never added, merged, split, dropped or reordered.
 applies=true for every directive except no_op; no_op requires applies=false and null adjustment.
 Use no_op when the note cannot change today's 24-hour schedule: menus, registrations, notices, library hours, bookings, rosters, unrelated maintenance, other days.
@@ -72,7 +74,69 @@ Reply JSON only:
 #: Upper bound on how long a single rate-limit wait may block a request. The
 #: judged timeout is 30s, so a long provider back-off is better served by the
 #: deterministic fallback than by making the caller wait.
-MAX_RATE_LIMIT_WAIT_SECONDS = 6.0
+MAX_RATE_LIMIT_WAIT_SECONDS = 8.0
+
+#: Longest proactive pause before sending, used to stay inside the provider's
+#: per-minute token budget instead of provoking a 429.
+MAX_PROACTIVE_WAIT_SECONDS = 4.0
+
+#: Rough characters-per-token ratio used only to estimate prompt cost.
+APPROX_CHARS_PER_TOKEN = 3.5
+
+
+def _parse_duration(text: Optional[str]) -> Optional[float]:
+    """Parse provider durations such as ``54.517s`` or ``1h6m14.4s`` into seconds."""
+    if not text:
+        return None
+    match = re.fullmatch(
+        r"\s*(?:(?P<hours>[\d.]+)h)?(?:(?P<minutes>[\d.]+)m)?(?:(?P<seconds>[\d.]+)s)?\s*", text
+    )
+    if not match or not any(match.group(name) for name in ("hours", "minutes", "seconds")):
+        return None
+    return (
+        float(match.group("hours") or 0.0) * 3600.0
+        + float(match.group("minutes") or 0.0) * 60.0
+        + float(match.group("seconds") or 0.0)
+    )
+
+
+class _TokenGovernor:
+    """Paces requests using the provider's own rate-limit headers.
+
+    The provider reports how much of the per-minute token budget is left after
+    every call, so the client can pause briefly instead of provoking a 429 and
+    then waiting for the retry hint.
+    """
+
+    def __init__(self) -> None:
+        self._remaining: Optional[float] = None
+        self._reset_in: float = 0.0
+        self._observed_at: float = 0.0
+
+    def observe(self, response: httpx.Response) -> None:
+        remaining = response.headers.get("x-ratelimit-remaining-tokens")
+        if remaining is None:
+            return
+        try:
+            self._remaining = float(remaining)
+        except ValueError:
+            return
+        reset = _parse_duration(response.headers.get("x-ratelimit-reset-tokens"))
+        if reset is not None:
+            self._reset_in = reset
+        self._observed_at = time.monotonic()
+
+    async def pause_if_needed(self, estimated_cost: float) -> None:
+        if self._remaining is None:
+            return
+        elapsed = time.monotonic() - self._observed_at
+        projected = self._remaining - elapsed * (self._remaining / max(self._reset_in, 1e-3) / 60.0)
+        if projected >= estimated_cost:
+            return
+        logger.debug(
+            "token budget low (%.0f remaining, need %.0f), pausing", projected, estimated_cost
+        )
+        await asyncio.sleep(min(MAX_PROACTIVE_WAIT_SECONDS, max(0.0, self._reset_in)))
 
 
 class InterpreterUnavailable(RuntimeError):
@@ -92,6 +156,12 @@ class InterpretationOutcome:
     repairs: List[str] = field(default_factory=list)
 
 
+def _estimate_token_cost(prompt: str, max_tokens: int) -> float:
+    """Rough prompt-plus-completion cost of one request, in tokens."""
+    prompt_tokens = (len(SYSTEM_PROMPT) + len(prompt)) / APPROX_CHARS_PER_TOKEN
+    return prompt_tokens + max_tokens
+
+
 def _rate_limit_wait(response: httpx.Response) -> Optional[float]:
     """Read the provider's requested back-off from headers or the error body."""
     header = response.headers.get("retry-after")
@@ -107,14 +177,29 @@ def _rate_limit_wait(response: httpx.Response) -> Optional[float]:
     return None
 
 
-def build_user_prompt(scenario_id: str, notes: Sequence[str], battery: BatterySpec) -> str:
+def daylight_hours(hours: Optional[Sequence[HourEntry]]) -> List[int]:
+    """Hours whose forecast solar output is above zero."""
+    if not hours:
+        return []
+    return [entry.hour for entry in hours if entry.solar_kwh > 0]
+
+
+def build_user_prompt(
+    scenario_id: str,
+    notes: Sequence[str],
+    battery: BatterySpec,
+    hours: Optional[Sequence[HourEntry]] = None,
+) -> str:
     """Render the compact per-scenario prompt."""
     lines = [
         f"scenario_id: {scenario_id}",
         f"battery_capacity_kwh: {battery.capacity_kwh:g}",
         f"base_minimum_energy_kwh: {battery.minimum_energy_kwh:g}",
-        "operator_notes:",
     ]
+    lit = daylight_hours(hours)
+    if lit:
+        lines.append(f"daylight_hours: {','.join(str(hour) for hour in lit)}")
+    lines.append("operator_notes:")
     for index, note in enumerate(notes):
         lines.append(f"[{index}] {note}")
     return "\n".join(lines)
@@ -217,14 +302,15 @@ _FALLBACK_CAP = re.compile(
 _FALLBACK_RESERVE = re.compile(
     r"\b(reserve|backup|emergency|at least|keep|retain|maintain|remain|minimum)\b", re.IGNORECASE
 )
+_CHARGE_WORD = r"(?:charg\w*|recharg\w*|top[\s-]?up)"
 _FALLBACK_CHARGE_OFF = re.compile(
-    r"\b(charger|charging|charge)\b[^.]{0,60}?\b(unavailable|disabled|isolated|offline|out of service|"
+    rf"\b{_CHARGE_WORD}\b[^.]{{0,60}}?\b(unavailable|disabled|isolated|offline|out of service|"
     r"not available|no longer|suspended|inspection|maintenance|blocked)\b",
     re.IGNORECASE,
 )
 _FALLBACK_CHARGE_OFF_REVERSE = re.compile(
-    r"\b(unavailable|disabled|isolated|offline|out of service|suspended|do not|don't|no)\b"
-    r"[^.]{0,60}?\b(charg\w*)\b",
+    rf"\b(unavailable|disabled|isolated|offline|out of service|suspended|do not|don't|cannot|"
+    rf"can't|must not|no)\b[^.]{{0,60}}?\b{_CHARGE_WORD}\b",
     re.IGNORECASE,
 )
 _FALLBACK_DISCHARGE_OFF = re.compile(
@@ -246,6 +332,8 @@ _FALLBACK_PERCENT = re.compile(r"(\d+(?:\.\d+)?)\s*(%|percent)", re.IGNORECASE)
 _FALLBACK_WORD_FRACTION = {
     "half": 0.5,
     "halved": 0.5,
+    "halve": 0.5,
+    "halves": 0.5,
     "one-half": 0.5,
     "quarter": 0.25,
     "one-quarter": 0.25,
@@ -257,6 +345,12 @@ _FALLBACK_WORD_FRACTION = {
 }
 
 
+_WORD_NUMBERS = {
+    "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+    "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12,
+}
+
+
 def _clock_token_to_hour(hour_text: str, minute_text: Optional[str], meridiem: str) -> int:
     hour = int(hour_text) % 12
     if meridiem.lower() == "pm":
@@ -264,34 +358,81 @@ def _clock_token_to_hour(hour_text: str, minute_text: Optional[str], meridiem: s
     return hour
 
 
-def _parse_window(text: str) -> List[int]:
-    """Best-effort whole-hour window extraction for the fallback path."""
+def _to_window(start: int, end: int) -> List[int]:
+    """Expand an inclusive start / exclusive end pair into whole hours."""
+    if not 0 <= start < HOURS_PER_DAY or not 0 <= end < HOURS_PER_DAY:
+        return []
+    if end == start:
+        return [start]
+    if end < start:
+        return list(range(start, HOURS_PER_DAY)) + list(range(0, end))
+    return list(range(start, end))
+
+
+def _normalize_time_text(text: str) -> str:
+    """Lower-case, expand word numerals and common time nouns, and unify dashes."""
     normalized = text.lower().replace("\u2013", "-").replace("\u2014", "-")
     normalized = re.sub(r"\bnoon\b|\bmidday\b", "12 pm", normalized)
     normalized = re.sub(r"\bmidnight\b", "12 am", normalized)
+    for word, value in _WORD_NUMBERS.items():
+        normalized = re.sub(rf"\b{word}\b", str(value), normalized)
+    return normalized
 
-    pattern = re.compile(
-        rf"(?:from|between)?\s*{_CLOCK}\s*{_RANGE_SEPARATOR}\s*{_CLOCK}", re.IGNORECASE
+
+def _parse_window(text: str) -> List[int]:
+    """Best-effort whole-hour window extraction for the fallback path."""
+    normalized = _normalize_time_text(text)
+
+    def clock(hour: str, minute: Optional[str], meridiem: str) -> int:
+        return _clock_token_to_hour(hour, minute, meridiem)
+
+    # "1 PM to 3 PM", "6 PM until 9 PM", "noon until 2 PM"
+    match = re.search(
+        rf"(?:from|between)?\s*{_CLOCK}\s*{_RANGE_SEPARATOR}\s*{_CLOCK}", normalized
     )
-    match = pattern.search(normalized)
-    if not match:
-        pattern = re.compile(rf"{_CLOCK}\s*{_RANGE_SEPARATOR}\s*(\d{{1,2}})(?=\D|$)", re.IGNORECASE)
-        match = pattern.search(normalized)
-        if not match:
-            if re.search(r"\ball day\b|\bwhole day\b|\bthroughout\b|\bentire day\b", normalized):
-                return list(range(HOURS_PER_DAY))
-            return []
-        start = _clock_token_to_hour(match.group(1), match.group(2), match.group(3))
-        end = int(match.group(4)) % 24
-    else:
-        start = _clock_token_to_hour(match.group(1), match.group(2), match.group(3))
-        end = _clock_token_to_hour(match.group(4), match.group(5), match.group(6))
+    if match:
+        return _to_window(
+            clock(match.group(1), match.group(2), match.group(3)),
+            clock(match.group(4), match.group(5), match.group(6)),
+        )
 
-    if not 0 <= start < HOURS_PER_DAY or not 0 <= end < HOURS_PER_DAY:
-        return []
-    if end <= start:
-        return list(range(start, HOURS_PER_DAY)) + list(range(0, end))
-    return list(range(start, end))
+    # "1-3 PM", "1:00 - 3:00 pm" - one meridiem shared by both ends
+    match = re.search(
+        r"(\d{1,2})(?::(\d{2}))?\s*-\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)", normalized
+    )
+    if match:
+        meridiem = match.group(5)
+        start = clock(match.group(1), match.group(2), meridiem)
+        end = clock(match.group(3), match.group(4), meridiem)
+        if end <= start and int(match.group(1)) <= 12:
+            # "11-1 PM" reads as 11 AM to 1 PM.
+            start = int(match.group(1)) % 12
+        return _to_window(start, end)
+
+    # "13:00 and 15:00" - explicit 24-hour clock
+    match = re.search(r"(\d{1,2}):(\d{2})\s*" + _RANGE_SEPARATOR + r"\s*(\d{1,2}):(\d{2})", normalized)
+    if match:
+        return _to_window(int(match.group(1)) % 24, int(match.group(3)) % 24)
+
+    # "2 PM until 4" - the end hour inherits the opening meridiem
+    match = re.search(rf"{_CLOCK}\s*{_RANGE_SEPARATOR}\s*(\d{{1,2}})(?!\d)", normalized)
+    if match:
+        meridiem = match.group(3)
+        start = clock(match.group(1), match.group(2), meridiem)
+        end_value = int(match.group(4))
+        end = end_value % 12 + _MERIDIEM_OFFSET[meridiem.lower()]
+        if end <= start and meridiem.lower() == "am" and 1 <= end_value <= 12:
+            end = end_value + 12
+        return _to_window(start, end)
+
+    # Last resort: a bare numeric range such as "1 until 3"
+    match = re.search(r"(\d{1,2})\s*" + _RANGE_SEPARATOR + r"\s*(\d{1,2})(?!\d)", normalized)
+    if match:
+        return _to_window(int(match.group(1)) % 24, int(match.group(2)) % 24)
+
+    if re.search(r"\ball day\b|\bwhole day\b|\bthroughout\b|\bentire day\b", normalized):
+        return list(range(HOURS_PER_DAY))
+    return []
 
 
 def _fallback_solar_factor(text: str) -> Optional[float]:
@@ -300,7 +441,14 @@ def _fallback_solar_factor(text: str) -> Optional[float]:
     reduction_like = re.search(r"\b(reduc\w*|drop\w*|declin\w*|loss|lost|shortfall|cut\w*)\b", lowered)
     if percent_match:
         value = float(percent_match.group(1))
-        if reduction_like:
+        before = lowered[max(0, percent_match.start() - 40) : percent_match.start()]
+        # "drop to 20% of forecast" states the remainder; "an 80% reduction"
+        # or "drop by 20%" states the size of the loss.
+        states_remainder = bool(
+            re.search(r"\b(to|at|is|are|of|leave\w*|remain\w*)\s*(?:about\s+|roughly\s+|approximately\s+|around\s+)?$", before)
+            or re.search(r"\b(forecast|normal|usual|typical|capacity)\b", lowered[percent_match.end() : percent_match.end() + 20])
+        )
+        if reduction_like and not states_remainder:
             return round(max(0.0, 1.0 - value / 100.0), 10)
         return round(min(1.0, value / 100.0), 10)
     for word, value in _FALLBACK_WORD_FRACTION.items():
@@ -309,9 +457,37 @@ def _fallback_solar_factor(text: str) -> Optional[float]:
     return None
 
 
-def _fallback_directives(notes: Sequence[str], battery: BatterySpec) -> List[Directive]:
+def _shift_into_daylight(hours: List[int], lit: set[int]) -> List[int]:
+    """Move an all-night window of a solar rule into its daytime equivalent."""
+    if not hours or not lit or any(hour in lit for hour in hours):
+        return hours
+    shifted = sorted({(hour + 12) % 24 for hour in hours})
+    return shifted if any(hour in lit for hour in shifted) else hours
+
+
+def _fallback_reserve_value(note: str, battery: BatterySpec) -> Optional[float]:
+    """Read a reserve either as an absolute kWh figure or as a share of capacity."""
+    lowered = note.lower()
+    number = _FALLBACK_NUMBER.search(lowered)
+    if number:
+        return float(number.group(1))
+    percent = _FALLBACK_PERCENT.search(lowered)
+    if percent:
+        return float(percent.group(1)) / 100.0 * float(battery.capacity_kwh)
+    for word, share in _FALLBACK_WORD_FRACTION.items():
+        if re.search(rf"\b{re.escape(word)}\b", lowered):
+            return round(share * float(battery.capacity_kwh), 6)
+    return None
+
+
+def _fallback_directives(
+    notes: Sequence[str],
+    battery: BatterySpec,
+    hours: Optional[Sequence[HourEntry]] = None,
+) -> List[Directive]:
     """Conservative rule-based reading used only when the provider is down."""
     directives: List[Directive] = []
+    lit = set(daylight_hours(hours))
 
     for index, note in enumerate(notes):
         hours = _parse_window(note)
@@ -344,6 +520,7 @@ def _fallback_directives(notes: Sequence[str], battery: BatterySpec) -> List[Dir
             continue
 
         if _FALLBACK_SOLAR.search(note) and hours:
+            hours = _shift_into_daylight(hours, lit)
             factor = _fallback_solar_factor(note)
             if factor is not None:
                 directives.append(
@@ -370,13 +547,7 @@ def _fallback_directives(notes: Sequence[str], battery: BatterySpec) -> List[Dir
                 continue
 
         if _FALLBACK_RESERVE.search(note) and hours:
-            number = _FALLBACK_NUMBER.search(note)
-            percent = _FALLBACK_PERCENT.search(note)
-            reserve: Optional[float] = None
-            if number:
-                reserve = float(number.group(1))
-            elif percent:
-                reserve = float(percent.group(1)) / 100.0 * float(battery.capacity_kwh)
+            reserve = _fallback_reserve_value(note, battery)
             if reserve is not None:
                 directives.append(
                     Directive(
@@ -402,6 +573,7 @@ class LLMInterpreter:
         self._settings = settings
         self._client: Optional[httpx.AsyncClient] = None
         self._cache = _TtlCache(settings.cache_size, settings.cache_ttl_seconds)
+        self._governor = _TokenGovernor()
         self._json_mode_supported = True
 
     # -- lifecycle ---------------------------------------------------------
@@ -423,7 +595,10 @@ class LLMInterpreter:
 
     async def aclose(self) -> None:
         if self._client is not None:
-            await self._client.aclose()
+            try:
+                await self._client.aclose()
+            except RuntimeError:  # pragma: no cover - loop already closed
+                pass
             self._client = None
 
     # -- public API --------------------------------------------------------
@@ -432,9 +607,10 @@ class LLMInterpreter:
         scenario_id: str,
         notes: Sequence[str],
         battery: BatterySpec,
+        hours: Optional[Sequence[HourEntry]] = None,
     ) -> InterpretationOutcome:
         """Interpret every operator note, falling back safely on provider failure."""
-        cache_key = self._cache_key(notes, battery)
+        cache_key = self._cache_key(notes, battery, hours)
         cached = self._cache.get(cache_key)
         if cached is not None:
             return InterpretationOutcome(
@@ -445,7 +621,9 @@ class LLMInterpreter:
         source = "llm"
         if self._settings.llm_available:
             try:
-                raw_payload = await self._request_model(build_user_prompt(scenario_id, notes, battery))
+                raw_payload = await self._request_model(
+                    build_user_prompt(scenario_id, notes, battery, hours)
+                )
             except InterpreterUnavailable as exc:
                 LOGGER.warning("language model unavailable, using fallback interpreter: %s", exc)
             except Exception as exc:  # defensive: never let a provider bug reach the API
@@ -453,7 +631,7 @@ class LLMInterpreter:
 
         if raw_payload is None:
             source = "fallback"
-            directives = _fallback_directives(notes, battery)
+            directives = _fallback_directives(notes, battery, hours)
             result = GuardrailResult(directives=directives, repairs=["used fallback interpreter"])
         else:
             result = sanitize_interpretation(raw_payload, notes, battery)
@@ -473,13 +651,19 @@ class LLMInterpreter:
             LOGGER.warning("interpreter warmup failed: %s", type(exc).__name__)
 
     # -- internals ---------------------------------------------------------
-    def _cache_key(self, notes: Sequence[str], battery: BatterySpec) -> str:
+    def _cache_key(
+        self,
+        notes: Sequence[str],
+        battery: BatterySpec,
+        hours: Optional[Sequence[HourEntry]] = None,
+    ) -> str:
         payload = json.dumps(
             {
                 "model": self._settings.model,
                 "notes": list(notes),
                 "capacity": round(float(battery.capacity_kwh), 6),
                 "minimum": round(float(battery.minimum_energy_kwh), 6),
+                "daylight": daylight_hours(hours),
             },
             sort_keys=True,
         )
@@ -548,7 +732,11 @@ class LLMInterpreter:
         if use_json_mode:
             body["response_format"] = {"type": "json_object"}
 
+        await self._governor.pause_if_needed(
+            _estimate_token_cost(user_prompt, self._settings.max_tokens)
+        )
         response = await self._client.post("/chat/completions", json=body)
+        self._governor.observe(response)
 
         if response.status_code == 400 and use_json_mode:
             detail = response.text.lower()
