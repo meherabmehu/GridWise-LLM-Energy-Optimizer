@@ -133,7 +133,7 @@ class _TokenGovernor:
         projected = self._remaining - elapsed * (self._remaining / max(self._reset_in, 1e-3) / 60.0)
         if projected >= estimated_cost:
             return
-        logger.debug(
+        LOGGER.debug(
             "token budget low (%.0f remaining, need %.0f), pausing", projected, estimated_cost
         )
         await asyncio.sleep(min(MAX_PROACTIVE_WAIT_SECONDS, max(0.0, self._reset_in)))
