@@ -48,11 +48,15 @@ def _error(status_code: int, error_type: str, message: str) -> JSONResponse:
     return JSONResponse(status_code=status_code, content={"error": {"type": error_type, "message": message}})
 
 
-def _is_malformed_json(exc: RequestValidationError) -> bool:
-    for error in exc.errors():
-        if error.get("type") in {"json_invalid", "json_type"}:
-            return True
-    return False
+def _is_malformed_body(raw: bytes, exc: RequestValidationError) -> bool:
+    """True when the body could not be parsed at all, rather than failing schema rules.
+
+    An empty body and an unparsable body are client errors (400); a body that
+    parses but does not match the schema is a validation error (422).
+    """
+    if not raw.strip():
+        return True
+    return any(error.get("type") in {"json_invalid", "json_type"} for error in exc.errors())
 
 
 @asynccontextmanager
@@ -103,7 +107,11 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(RequestValidationError)
     async def handle_validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
-        malformed = _is_malformed_json(exc)
+        try:
+            raw_body = await request.body()
+        except Exception:  # pragma: no cover - body already consumed or unreadable
+            raw_body = b""
+        malformed = _is_malformed_body(raw_body, exc)
         details = [
             {"field": ".".join(str(part) for part in error.get("loc", ())), "message": error.get("msg", "")}
             for error in exc.errors()[:10]
