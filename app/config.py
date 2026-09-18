@@ -23,6 +23,11 @@ PROVIDER_DEFAULTS: dict[str, tuple[str, str, str]] = {
 
 DEFAULT_PROVIDER = "groq"
 
+#: Reasoning budget for models that expose one. ``low`` keeps the interpretation
+#: well inside the token and latency budget without hurting accuracy on this
+#: task; providers that do not support the parameter get no value at all.
+DEFAULT_REASONING_EFFORT = {"groq": "low"}
+
 
 def _env(name: str, default: str = "") -> str:
     return (os.getenv(name) or default).strip()
@@ -62,6 +67,7 @@ class Settings:
     max_attempts: int
     max_tokens: int
     temperature: float
+    reasoning_effort: str
     cache_size: int
     cache_ttl_seconds: float
     host: str
@@ -96,9 +102,10 @@ def load_settings() -> Settings:
         model=model,
         enabled=_env_bool("LLM_ENABLED", True),
         timeout_seconds=max(_env_float("LLM_TIMEOUT_SECONDS", 12.0), 0.5),
-        max_attempts=max(_env_int("LLM_MAX_ATTEMPTS", 2), 1),
-        max_tokens=max(_env_int("LLM_MAX_TOKENS", 1200), 128),
+        max_attempts=max(_env_int("LLM_MAX_ATTEMPTS", 3), 1),
+        max_tokens=max(_env_int("LLM_MAX_TOKENS", 600), 128),
         temperature=_env_float("LLM_TEMPERATURE", 0.0),
+        reasoning_effort=_env("LLM_REASONING_EFFORT", DEFAULT_REASONING_EFFORT.get(provider, "")),
         cache_size=max(_env_int("LLM_CACHE_SIZE", 512), 0),
         cache_ttl_seconds=max(_env_float("LLM_CACHE_TTL_SECONDS", 900.0), 0.0),
         host=_env("HOST", "0.0.0.0") or "0.0.0.0",
