@@ -1,0 +1,294 @@
+{
+  "live_url": "https://brian-sheffield-surely-fly.trycloudflare.com",
+  "repository": "https://github.com/meherabmehu/GridWise-LLM-Energy-Optimizer",
+  "endpoints": {
+    "health": "GET /health",
+    "optimize": "POST /optimize-energy"
+  },
+  "directive_types": [
+    "solar_reduction",
+    "minimum_battery_reserve",
+    "no_charge_window",
+    "no_discharge_window",
+    "max_grid_window",
+    "no_op"
+  ],
+  "cases": [
+    {
+      "id": "SAMPLE-01",
+      "group": "official",
+      "title_en": "SAMPLE-01 - official public sample case",
+      "title_bn": "SAMPLE-01 - official public sample case",
+      "notes": [
+        "Facilities will wash the rooftop solar panels from noon until 2 PM. During cleaning, usable solar should be treated as roughly 25% of the forecast.",
+        "The sports office moved next month's registration deadline."
+      ],
+      "body": "{\n  \"scenario_id\": \"SAMPLE-01\",\n  \"operator_notes\": [\n    \"Facilities will wash the rooftop solar panels from noon until 2 PM. During cleaning, usable solar should be treated as roughly 25% of the forecast.\",\n    \"The sports office moved next month's registration deadline.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 110, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 130, \"solar_kwh\": 20, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 150, \"solar_kwh\": 50, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 175, \"solar_kwh\": 130, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 11, \"demand_kwh\": 180, \"solar_kwh\": 160, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 185, \"solar_kwh\": 180, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 13, \"demand_kwh\": 180, \"solar_kwh\": 170, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 14, \"demand_kwh\": 170, \"solar_kwh\": 140, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 15, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 16, \"demand_kwh\": 170, \"solar_kwh\": 45, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 185, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 22},\n    {\"hour\": 18, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 28},\n    {\"hour\": 19, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 20, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 26},\n    {\"hour\": 21, \"demand_kwh\": 175, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 22, \"demand_kwh\": 135, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 23, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 220,\n    \"initial_energy_kwh\": 110,\n    \"minimum_energy_kwh\": 40,\n    \"max_charge_kwh_per_hour\": 50,\n    \"max_discharge_kwh_per_hour\": 50\n  }\n}",
+      "expected_en": "solar_reduction (hours [12, 13], factor 0.25) | no_op",
+      "expected_bn": "solar_reduction (hours [12, 13], factor 0.25) | no_op",
+      "totals": "2692.50 kWh / 38365.00 BDT / peak 175.00 kWh",
+      "source": "docs/official/BUP_CSE_FEST_2026_Preli_Public_Sample_Cases.json"
+    },
+    {
+      "id": "SAMPLE-02",
+      "group": "official",
+      "title_en": "SAMPLE-02 - official public sample case",
+      "title_bn": "SAMPLE-02 - official public sample case",
+      "notes": [
+        "The battery charger will be isolated from 2 AM until 5 AM for electrical maintenance."
+      ],
+      "body": "{\n  \"scenario_id\": \"SAMPLE-02\",\n  \"operator_notes\": [\n    \"The battery charger will be isolated from 2 AM until 5 AM for electrical maintenance.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 100, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 2, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 4},\n    {\"hour\": 3, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 4},\n    {\"hour\": 4, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 4},\n    {\"hour\": 5, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 6, \"demand_kwh\": 120, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7},\n    {\"hour\": 7, \"demand_kwh\": 135, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 9},\n    {\"hour\": 8, \"demand_kwh\": 145, \"solar_kwh\": 30, \"tariff_bdt_per_kwh\": 11},\n    {\"hour\": 9, \"demand_kwh\": 155, \"solar_kwh\": 55, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 10, \"demand_kwh\": 165, \"solar_kwh\": 80, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 11, \"demand_kwh\": 175, \"solar_kwh\": 100, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 180, \"solar_kwh\": 110, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 13, \"demand_kwh\": 175, \"solar_kwh\": 105, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 14, \"demand_kwh\": 165, \"solar_kwh\": 85, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 15, \"demand_kwh\": 160, \"solar_kwh\": 60, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 16, \"demand_kwh\": 170, \"solar_kwh\": 30, \"tariff_bdt_per_kwh\": 19},\n    {\"hour\": 17, \"demand_kwh\": 190, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 24},\n    {\"hour\": 18, \"demand_kwh\": 210, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 31},\n    {\"hour\": 19, \"demand_kwh\": 220, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 33},\n    {\"hour\": 20, \"demand_kwh\": 210, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 29},\n    {\"hour\": 21, \"demand_kwh\": 180, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 20},\n    {\"hour\": 22, \"demand_kwh\": 145, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 11},\n    {\"hour\": 23, \"demand_kwh\": 115, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 200,\n    \"initial_energy_kwh\": 70,\n    \"minimum_energy_kwh\": 30,\n    \"max_charge_kwh_per_hour\": 55,\n    \"max_discharge_kwh_per_hour\": 55\n  }\n}",
+      "expected_en": "no_charge_window (hours [2, 3, 4])",
+      "expected_bn": "no_charge_window (hours [2, 3, 4])",
+      "totals": "2915.00 kWh / 42885.00 BDT / peak 180.00 kWh",
+      "source": "docs/official/BUP_CSE_FEST_2026_Preli_Public_Sample_Cases.json"
+    },
+    {
+      "id": "SAMPLE-03",
+      "group": "official",
+      "title_en": "SAMPLE-03 - official public sample case",
+      "title_bn": "SAMPLE-03 - official public sample case",
+      "notes": [
+        "Keep at least 50% of the battery capacity stored in the battery from 6 PM until 9 PM for emergency operations."
+      ],
+      "body": "{\n  \"scenario_id\": \"SAMPLE-03\",\n  \"operator_notes\": [\n    \"Keep at least 50% of the battery capacity stored in the battery from 6 PM until 9 PM for emergency operations.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 110, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 130, \"solar_kwh\": 20, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 150, \"solar_kwh\": 50, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 175, \"solar_kwh\": 130, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 11, \"demand_kwh\": 180, \"solar_kwh\": 160, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 185, \"solar_kwh\": 180, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 13, \"demand_kwh\": 180, \"solar_kwh\": 170, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 14, \"demand_kwh\": 170, \"solar_kwh\": 140, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 15, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 16, \"demand_kwh\": 170, \"solar_kwh\": 45, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 185, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 22},\n    {\"hour\": 18, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 28},\n    {\"hour\": 19, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 20, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 26},\n    {\"hour\": 21, \"demand_kwh\": 175, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 22, \"demand_kwh\": 135, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 23, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 200,\n    \"initial_energy_kwh\": 120,\n    \"minimum_energy_kwh\": 40,\n    \"max_charge_kwh_per_hour\": 50,\n    \"max_discharge_kwh_per_hour\": 50\n  }\n}",
+      "expected_en": "minimum_battery_reserve (hours [18, 19, 20], minimum_energy_kwh 100)",
+      "expected_bn": "minimum_battery_reserve (hours [18, 19, 20], minimum_energy_kwh 100)",
+      "totals": "2430.00 kWh / 35480.00 BDT / peak 205.00 kWh",
+      "source": "docs/official/BUP_CSE_FEST_2026_Preli_Public_Sample_Cases.json"
+    },
+    {
+      "id": "SAMPLE-04",
+      "group": "official",
+      "title_en": "SAMPLE-04 - official public sample case",
+      "title_bn": "SAMPLE-04 - official public sample case",
+      "notes": [
+        "For protection testing, the battery must not discharge from 6 PM until 8 PM."
+      ],
+      "body": "{\n  \"scenario_id\": \"SAMPLE-04\",\n  \"operator_notes\": [\n    \"For protection testing, the battery must not discharge from 6 PM until 8 PM.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7},\n    {\"hour\": 1, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 3, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 100, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 115, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 130, \"solar_kwh\": 15, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 145, \"solar_kwh\": 40, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 155, \"solar_kwh\": 75, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 165, \"solar_kwh\": 110, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 11, \"demand_kwh\": 175, \"solar_kwh\": 145, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 180, \"solar_kwh\": 165, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 13, \"demand_kwh\": 175, \"solar_kwh\": 155, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 14, \"demand_kwh\": 170, \"solar_kwh\": 125, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 15, \"demand_kwh\": 165, \"solar_kwh\": 80, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 16, \"demand_kwh\": 175, \"solar_kwh\": 35, \"tariff_bdt_per_kwh\": 17},\n    {\"hour\": 17, \"demand_kwh\": 195, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 21},\n    {\"hour\": 18, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 29},\n    {\"hour\": 19, \"demand_kwh\": 225, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 32},\n    {\"hour\": 20, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 21, \"demand_kwh\": 185, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 20},\n    {\"hour\": 22, \"demand_kwh\": 150, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 11},\n    {\"hour\": 23, \"demand_kwh\": 120, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 8}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 230,\n    \"initial_energy_kwh\": 130,\n    \"minimum_energy_kwh\": 40,\n    \"max_charge_kwh_per_hour\": 55,\n    \"max_discharge_kwh_per_hour\": 55\n  }\n}",
+      "expected_en": "no_discharge_window (hours [18, 19])",
+      "expected_bn": "no_discharge_window (hours [18, 19])",
+      "totals": "2645.00 kWh / 40495.00 BDT / peak 225.00 kWh",
+      "source": "docs/official/BUP_CSE_FEST_2026_Preli_Public_Sample_Cases.json"
+    },
+    {
+      "id": "SAMPLE-05",
+      "group": "official",
+      "title_en": "SAMPLE-05 - official public sample case",
+      "title_bn": "SAMPLE-05 - official public sample case",
+      "notes": [
+        "From 6 PM until 9 PM, campus grid import must not exceed 155 kWh in any hour because the feeder is operating under a temporary limit."
+      ],
+      "body": "{\n  \"scenario_id\": \"SAMPLE-05\",\n  \"operator_notes\": [\n    \"From 6 PM until 9 PM, campus grid import must not exceed 155 kWh in any hour because the feeder is operating under a temporary limit.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 110, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 130, \"solar_kwh\": 20, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 150, \"solar_kwh\": 50, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 175, \"solar_kwh\": 130, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 11, \"demand_kwh\": 180, \"solar_kwh\": 160, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 185, \"solar_kwh\": 180, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 13, \"demand_kwh\": 180, \"solar_kwh\": 170, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 14, \"demand_kwh\": 170, \"solar_kwh\": 140, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 15, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 16, \"demand_kwh\": 170, \"solar_kwh\": 45, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 185, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 22},\n    {\"hour\": 18, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 28},\n    {\"hour\": 19, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 20, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 26},\n    {\"hour\": 21, \"demand_kwh\": 175, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 22, \"demand_kwh\": 135, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 23, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 240,\n    \"initial_energy_kwh\": 120,\n    \"minimum_energy_kwh\": 30,\n    \"max_charge_kwh_per_hour\": 60,\n    \"max_discharge_kwh_per_hour\": 60\n  }\n}",
+      "expected_en": "max_grid_window (hours [18, 19, 20], max_grid_kwh 155)",
+      "expected_bn": "max_grid_window (hours [18, 19, 20], max_grid_kwh 155)",
+      "totals": "2430.00 kWh / 33950.00 BDT / peak 175.00 kWh",
+      "source": "docs/official/BUP_CSE_FEST_2026_Preli_Public_Sample_Cases.json"
+    },
+    {
+      "id": "SAMPLE-06",
+      "group": "official",
+      "title_en": "SAMPLE-06 - official public sample case",
+      "title_bn": "SAMPLE-06 - official public sample case",
+      "notes": [
+        "Cloud cover during panel inspection will leave about half of the forecast solar output from 10 AM until noon.",
+        "The charging circuit will be unavailable from 2 PM until 4 PM.",
+        "The library is extending book-return hours next week."
+      ],
+      "body": "{\n  \"scenario_id\": \"SAMPLE-06\",\n  \"operator_notes\": [\n    \"Cloud cover during panel inspection will leave about half of the forecast solar output from 10 AM until noon.\",\n    \"The charging circuit will be unavailable from 2 PM until 4 PM.\",\n    \"The library is extending book-return hours next week.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 1, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 2, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 4, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 5, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7},\n    {\"hour\": 6, \"demand_kwh\": 110, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 125, \"solar_kwh\": 20, \"tariff_bdt_per_kwh\": 9},\n    {\"hour\": 8, \"demand_kwh\": 140, \"solar_kwh\": 55, \"tariff_bdt_per_kwh\": 11},\n    {\"hour\": 9, \"demand_kwh\": 155, \"solar_kwh\": 100, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 10, \"demand_kwh\": 165, \"solar_kwh\": 150, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 11, \"demand_kwh\": 175, \"solar_kwh\": 190, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 180, \"solar_kwh\": 210, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 13, \"demand_kwh\": 175, \"solar_kwh\": 200, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 14, \"demand_kwh\": 170, \"solar_kwh\": 160, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 15, \"demand_kwh\": 165, \"solar_kwh\": 100, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 16, \"demand_kwh\": 175, \"solar_kwh\": 50, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 190, \"solar_kwh\": 15, \"tariff_bdt_per_kwh\": 22},\n    {\"hour\": 18, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 27},\n    {\"hour\": 19, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 29},\n    {\"hour\": 20, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 27},\n    {\"hour\": 21, \"demand_kwh\": 175, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 22, \"demand_kwh\": 140, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 23, \"demand_kwh\": 110, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 220,\n    \"initial_energy_kwh\": 100,\n    \"minimum_energy_kwh\": 35,\n    \"max_charge_kwh_per_hour\": 50,\n    \"max_discharge_kwh_per_hour\": 50\n  }\n}",
+      "expected_en": "solar_reduction (hours [10, 11], factor 0.5) | no_charge_window (hours [14, 15]) | no_op",
+      "expected_bn": "solar_reduction (hours [10, 11], factor 0.5) | no_charge_window (hours [14, 15]) | no_op",
+      "totals": "2395.00 kWh / 34090.00 BDT / peak 175.00 kWh",
+      "source": "docs/official/BUP_CSE_FEST_2026_Preli_Public_Sample_Cases.json"
+    },
+    {
+      "id": "SAMPLE-07",
+      "group": "official",
+      "title_en": "SAMPLE-07 - official public sample case",
+      "title_bn": "SAMPLE-07 - official public sample case",
+      "notes": [
+        "Keep at least 90 kWh in the battery from 6 PM until 10 PM for emergency services.",
+        "The evening transformer limit is 180 kWh of grid import from 7 PM until 9 PM."
+      ],
+      "body": "{\n  \"scenario_id\": \"SAMPLE-07\",\n  \"operator_notes\": [\n    \"Keep at least 90 kWh in the battery from 6 PM until 10 PM for emergency services.\",\n    \"The evening transformer limit is 180 kWh of grid import from 7 PM until 9 PM.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 100, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 120, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 135, \"solar_kwh\": 20, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 150, \"solar_kwh\": 50, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 175, \"solar_kwh\": 135, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 11, \"demand_kwh\": 185, \"solar_kwh\": 170, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 190, \"solar_kwh\": 190, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 13, \"demand_kwh\": 185, \"solar_kwh\": 180, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 14, \"demand_kwh\": 175, \"solar_kwh\": 145, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 15, \"demand_kwh\": 170, \"solar_kwh\": 95, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 16, \"demand_kwh\": 180, \"solar_kwh\": 45, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 195, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 23},\n    {\"hour\": 18, \"demand_kwh\": 210, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 29},\n    {\"hour\": 19, \"demand_kwh\": 225, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 32},\n    {\"hour\": 20, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 21, \"demand_kwh\": 185, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 21},\n    {\"hour\": 22, \"demand_kwh\": 145, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 11},\n    {\"hour\": 23, \"demand_kwh\": 115, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 250,\n    \"initial_energy_kwh\": 150,\n    \"minimum_energy_kwh\": 40,\n    \"max_charge_kwh_per_hour\": 60,\n    \"max_discharge_kwh_per_hour\": 60\n  }\n}",
+      "expected_en": "minimum_battery_reserve (hours [18, 19, 20, 21], minimum_energy_kwh 90) | max_grid_window (hours [19, 20], max_grid_kwh 180)",
+      "expected_bn": "minimum_battery_reserve (hours [18, 19, 20, 21], minimum_energy_kwh 90) | max_grid_window (hours [19, 20], max_grid_kwh 180)",
+      "totals": "2560.00 kWh / 38550.00 BDT / peak 185.00 kWh",
+      "source": "docs/official/BUP_CSE_FEST_2026_Preli_Public_Sample_Cases.json"
+    },
+    {
+      "id": "SAMPLE-08",
+      "group": "official",
+      "title_en": "SAMPLE-08 - official public sample case",
+      "title_bn": "SAMPLE-08 - official public sample case",
+      "notes": [
+        "Battery charging is disabled from 11 AM until 1 PM while technicians inspect the charger.",
+        "Do not discharge the battery from 5 PM until 7 PM during relay testing."
+      ],
+      "body": "{\n  \"scenario_id\": \"SAMPLE-08\",\n  \"operator_notes\": [\n    \"Battery charging is disabled from 11 AM until 1 PM while technicians inspect the charger.\",\n    \"Do not discharge the battery from 5 PM until 7 PM during relay testing.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 110, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 125, \"solar_kwh\": 15, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 140, \"solar_kwh\": 40, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 155, \"solar_kwh\": 80, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 165, \"solar_kwh\": 120, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 11, \"demand_kwh\": 175, \"solar_kwh\": 155, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 180, \"solar_kwh\": 175, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 13, \"demand_kwh\": 175, \"solar_kwh\": 165, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 14, \"demand_kwh\": 165, \"solar_kwh\": 130, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 15, \"demand_kwh\": 160, \"solar_kwh\": 85, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 16, \"demand_kwh\": 170, \"solar_kwh\": 40, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 190, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 24},\n    {\"hour\": 18, \"demand_kwh\": 210, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 19, \"demand_kwh\": 220, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 31},\n    {\"hour\": 20, \"demand_kwh\": 210, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 28},\n    {\"hour\": 21, \"demand_kwh\": 180, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 19},\n    {\"hour\": 22, \"demand_kwh\": 145, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 23, \"demand_kwh\": 115, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 210,\n    \"initial_energy_kwh\": 105,\n    \"minimum_energy_kwh\": 35,\n    \"max_charge_kwh_per_hour\": 50,\n    \"max_discharge_kwh_per_hour\": 50\n  }\n}",
+      "expected_en": "no_charge_window (hours [11, 12]) | no_discharge_window (hours [17, 18])",
+      "expected_bn": "no_charge_window (hours [11, 12]) | no_discharge_window (hours [17, 18])",
+      "totals": "2490.00 kWh / 37665.00 BDT / peak 210.00 kWh",
+      "source": "docs/official/BUP_CSE_FEST_2026_Preli_Public_Sample_Cases.json"
+    },
+    {
+      "id": "SAMPLE-09",
+      "group": "official",
+      "title_en": "SAMPLE-09 - official public sample case",
+      "title_bn": "SAMPLE-09 - official public sample case",
+      "notes": [
+        "Expect an 80% reduction in rooftop solar between 11 AM and 2 PM because of inverter work.",
+        "The student affairs office will publish club notices tomorrow."
+      ],
+      "body": "{\n  \"scenario_id\": \"SAMPLE-09\",\n  \"operator_notes\": [\n    \"Expect an 80% reduction in rooftop solar between 11 AM and 2 PM because of inverter work.\",\n    \"The student affairs office will publish club notices tomorrow.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 105, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 120, \"solar_kwh\": 25, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 135, \"solar_kwh\": 65, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 150, \"solar_kwh\": 120, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 10, \"demand_kwh\": 165, \"solar_kwh\": 180, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 11, \"demand_kwh\": 175, \"solar_kwh\": 230, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 12, \"demand_kwh\": 180, \"solar_kwh\": 260, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 13, \"demand_kwh\": 175, \"solar_kwh\": 240, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 14, \"demand_kwh\": 165, \"solar_kwh\": 190, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 15, \"demand_kwh\": 160, \"solar_kwh\": 120, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 16, \"demand_kwh\": 170, \"solar_kwh\": 55, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 185, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 22},\n    {\"hour\": 18, \"demand_kwh\": 200, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 27},\n    {\"hour\": 19, \"demand_kwh\": 210, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 29},\n    {\"hour\": 20, \"demand_kwh\": 200, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 26},\n    {\"hour\": 21, \"demand_kwh\": 170, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 22, \"demand_kwh\": 135, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 23, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 240,\n    \"initial_energy_kwh\": 120,\n    \"minimum_energy_kwh\": 40,\n    \"max_charge_kwh_per_hour\": 60,\n    \"max_discharge_kwh_per_hour\": 60\n  }\n}",
+      "expected_en": "solar_reduction (hours [11, 12, 13], factor 0.2) | no_op",
+      "expected_bn": "solar_reduction (hours [11, 12, 13], factor 0.2) | no_op",
+      "totals": "2504.00 kWh / 34873.00 BDT / peak 170.00 kWh",
+      "source": "docs/official/BUP_CSE_FEST_2026_Preli_Public_Sample_Cases.json"
+    },
+    {
+      "id": "SAMPLE-10",
+      "group": "official",
+      "title_en": "SAMPLE-10 - official public sample case",
+      "title_bn": "SAMPLE-10 - official public sample case",
+      "notes": [
+        "The data center requires at least 80 kWh to remain in the battery from 6 PM until 10 PM.",
+        "Grid intake must stay at or below 190 kWh from 7 PM until 10 PM while the substation is constrained.",
+        "A seminar room booking was moved to next week."
+      ],
+      "body": "{\n  \"scenario_id\": \"SAMPLE-10\",\n  \"operator_notes\": [\n    \"The data center requires at least 80 kWh to remain in the battery from 6 PM until 10 PM.\",\n    \"Grid intake must stay at or below 190 kWh from 7 PM until 10 PM while the substation is constrained.\",\n    \"A seminar room booking was moved to next week.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7},\n    {\"hour\": 1, \"demand_kwh\": 100, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 3, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 100, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 110, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 125, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 140, \"solar_kwh\": 20, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 155, \"solar_kwh\": 50, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 170, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 180, \"solar_kwh\": 130, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 11, \"demand_kwh\": 190, \"solar_kwh\": 165, \"tariff_bdt_per_kwh\": 17},\n    {\"hour\": 12, \"demand_kwh\": 195, \"solar_kwh\": 185, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 13, \"demand_kwh\": 190, \"solar_kwh\": 175, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 14, \"demand_kwh\": 180, \"solar_kwh\": 140, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 15, \"demand_kwh\": 175, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 16, \"demand_kwh\": 185, \"solar_kwh\": 40, \"tariff_bdt_per_kwh\": 19},\n    {\"hour\": 17, \"demand_kwh\": 200, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 24},\n    {\"hour\": 18, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 19, \"demand_kwh\": 230, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 34},\n    {\"hour\": 20, \"demand_kwh\": 220, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 31},\n    {\"hour\": 21, \"demand_kwh\": 190, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 21},\n    {\"hour\": 22, \"demand_kwh\": 150, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 11},\n    {\"hour\": 23, \"demand_kwh\": 120, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 8}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 260,\n    \"initial_energy_kwh\": 140,\n    \"minimum_energy_kwh\": 40,\n    \"max_charge_kwh_per_hour\": 65,\n    \"max_discharge_kwh_per_hour\": 65\n  }\n}",
+      "expected_en": "minimum_battery_reserve (hours [18, 19, 20, 21], minimum_energy_kwh 80) | max_grid_window (hours [19, 20, 21], max_grid_kwh 190) | no_op",
+      "expected_bn": "minimum_battery_reserve (hours [18, 19, 20, 21], minimum_energy_kwh 80) | max_grid_window (hours [19, 20, 21], max_grid_kwh 190) | no_op",
+      "totals": "2715.00 kWh / 41620.00 BDT / peak 190.00 kWh",
+      "source": "docs/official/BUP_CSE_FEST_2026_Preli_Public_Sample_Cases.json"
+    },
+    {
+      "id": "P1",
+      "group": "paraphrase",
+      "title_en": "solar_reduction - 55% reduction, 9 AM to 11 AM",
+      "title_bn": "solar_reduction - ৫৫% হ্রাস, সকাল ৯টা থেকে ১১টা",
+      "notes": [
+        "Expect a 55% reduction in rooftop solar from 9 AM to 11 AM."
+      ],
+      "body": "{\n  \"scenario_id\": \"PARAPHRASE-P1\",\n  \"operator_notes\": [\n    \"Expect a 55% reduction in rooftop solar from 9 AM to 11 AM.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 110, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 130, \"solar_kwh\": 20, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 150, \"solar_kwh\": 50, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 175, \"solar_kwh\": 130, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 11, \"demand_kwh\": 180, \"solar_kwh\": 160, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 185, \"solar_kwh\": 180, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 13, \"demand_kwh\": 180, \"solar_kwh\": 170, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 14, \"demand_kwh\": 170, \"solar_kwh\": 140, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 15, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 16, \"demand_kwh\": 170, \"solar_kwh\": 45, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 185, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 22},\n    {\"hour\": 18, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 28},\n    {\"hour\": 19, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 20, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 26},\n    {\"hour\": 21, \"demand_kwh\": 175, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 22, \"demand_kwh\": 135, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 23, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 240,\n    \"initial_energy_kwh\": 120,\n    \"minimum_energy_kwh\": 30,\n    \"max_charge_kwh_per_hour\": 60,\n    \"max_discharge_kwh_per_hour\": 60\n  }\n}",
+      "expected_en": "solar_reduction, hours [9, 10], factor 0.45",
+      "expected_bn": "solar_reduction, hours [9, 10], factor 0.45",
+      "totals": "2551.0 kWh / 35757.00 BDT / peak 175.0 kWh",
+      "source": "verified against the live service"
+    },
+    {
+      "id": "P2",
+      "group": "paraphrase",
+      "title_en": "minimum_battery_reserve - at least 115 kWh, 7 PM to 10 PM",
+      "title_bn": "minimum_battery_reserve - অন্তত ১১৫ kWh, সন্ধ্যা ৭টা থেকে ১০টা",
+      "notes": [
+        "Keep at least 115 kWh in the battery from 7 PM until 10 PM."
+      ],
+      "body": "{\n  \"scenario_id\": \"PARAPHRASE-P2\",\n  \"operator_notes\": [\n    \"Keep at least 115 kWh in the battery from 7 PM until 10 PM.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 110, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 130, \"solar_kwh\": 20, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 150, \"solar_kwh\": 50, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 175, \"solar_kwh\": 130, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 11, \"demand_kwh\": 180, \"solar_kwh\": 160, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 185, \"solar_kwh\": 180, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 13, \"demand_kwh\": 180, \"solar_kwh\": 170, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 14, \"demand_kwh\": 170, \"solar_kwh\": 140, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 15, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 16, \"demand_kwh\": 170, \"solar_kwh\": 45, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 185, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 22},\n    {\"hour\": 18, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 28},\n    {\"hour\": 19, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 20, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 26},\n    {\"hour\": 21, \"demand_kwh\": 175, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 22, \"demand_kwh\": 135, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 23, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 240,\n    \"initial_energy_kwh\": 120,\n    \"minimum_energy_kwh\": 30,\n    \"max_charge_kwh_per_hour\": 60,\n    \"max_discharge_kwh_per_hour\": 60\n  }\n}",
+      "expected_en": "minimum_battery_reserve, hours [19, 20, 21], minimum_energy_kwh 115.0",
+      "expected_bn": "minimum_battery_reserve, hours [19, 20, 21], minimum_energy_kwh 115.0",
+      "totals": "2430.0 kWh / 35190.00 BDT / peak 200.0 kWh",
+      "source": "verified against the live service"
+    },
+    {
+      "id": "P3",
+      "group": "paraphrase",
+      "title_en": "no_charge_window - charging blocked, 2 AM to 5 AM",
+      "title_bn": "no_charge_window - চার্জ বন্ধ, রাত ২টা থেকে ৫টা",
+      "notes": [
+        "Please don't charge the battery between 2 AM and 5 AM."
+      ],
+      "body": "{\n  \"scenario_id\": \"PARAPHRASE-P3\",\n  \"operator_notes\": [\n    \"Please don't charge the battery between 2 AM and 5 AM.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 110, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 130, \"solar_kwh\": 20, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 150, \"solar_kwh\": 50, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 175, \"solar_kwh\": 130, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 11, \"demand_kwh\": 180, \"solar_kwh\": 160, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 185, \"solar_kwh\": 180, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 13, \"demand_kwh\": 180, \"solar_kwh\": 170, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 14, \"demand_kwh\": 170, \"solar_kwh\": 140, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 15, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 16, \"demand_kwh\": 170, \"solar_kwh\": 45, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 185, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 22},\n    {\"hour\": 18, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 28},\n    {\"hour\": 19, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 20, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 26},\n    {\"hour\": 21, \"demand_kwh\": 175, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 22, \"demand_kwh\": 135, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 23, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 240,\n    \"initial_energy_kwh\": 120,\n    \"minimum_energy_kwh\": 30,\n    \"max_charge_kwh_per_hour\": 60,\n    \"max_discharge_kwh_per_hour\": 60\n  }\n}",
+      "expected_en": "no_charge_window, hours [2, 3, 4]",
+      "expected_bn": "no_charge_window, hours [2, 3, 4]",
+      "totals": "2430.0 kWh / 34130.00 BDT / peak 175.0 kWh",
+      "source": "verified against the live service"
+    },
+    {
+      "id": "P4",
+      "group": "paraphrase",
+      "title_en": "no_discharge_window - discharge blocked, 4 PM to 6 PM",
+      "title_bn": "no_discharge_window - ডিসচার্জ বন্ধ, বিকাল ৪টা থেকে ৬টা",
+      "notes": [
+        "Battery discharge is prohibited between 4 PM and 6 PM during relay work."
+      ],
+      "body": "{\n  \"scenario_id\": \"PARAPHRASE-P4\",\n  \"operator_notes\": [\n    \"Battery discharge is prohibited between 4 PM and 6 PM during relay work.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 110, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 130, \"solar_kwh\": 20, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 150, \"solar_kwh\": 50, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 175, \"solar_kwh\": 130, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 11, \"demand_kwh\": 180, \"solar_kwh\": 160, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 185, \"solar_kwh\": 180, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 13, \"demand_kwh\": 180, \"solar_kwh\": 170, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 14, \"demand_kwh\": 170, \"solar_kwh\": 140, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 15, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 16, \"demand_kwh\": 170, \"solar_kwh\": 45, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 185, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 22},\n    {\"hour\": 18, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 28},\n    {\"hour\": 19, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 20, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 26},\n    {\"hour\": 21, \"demand_kwh\": 175, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 22, \"demand_kwh\": 135, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 23, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 240,\n    \"initial_energy_kwh\": 120,\n    \"minimum_energy_kwh\": 30,\n    \"max_charge_kwh_per_hour\": 60,\n    \"max_discharge_kwh_per_hour\": 60\n  }\n}",
+      "expected_en": "no_discharge_window, hours [16, 17]",
+      "expected_bn": "no_discharge_window, hours [16, 17]",
+      "totals": "2430.0 kWh / 34070.00 BDT / peak 175.0 kWh",
+      "source": "verified against the live service"
+    },
+    {
+      "id": "P5",
+      "group": "paraphrase",
+      "title_en": "max_grid_window - import capped at 155 kWh, 6 PM to 9 PM",
+      "title_bn": "max_grid_window - import সর্বোচ্চ ১৫৫ kWh, সন্ধ্যা ৬টা থেকে ৯টা",
+      "notes": [
+        "Between 6 PM and 9 PM the campus feeder is limited, so keep hourly grid import under 155 kWh."
+      ],
+      "body": "{\n  \"scenario_id\": \"PARAPHRASE-P5\",\n  \"operator_notes\": [\n    \"Between 6 PM and 9 PM the campus feeder is limited, so keep hourly grid import under 155 kWh.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 110, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 130, \"solar_kwh\": 20, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 150, \"solar_kwh\": 50, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 175, \"solar_kwh\": 130, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 11, \"demand_kwh\": 180, \"solar_kwh\": 160, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 185, \"solar_kwh\": 180, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 13, \"demand_kwh\": 180, \"solar_kwh\": 170, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 14, \"demand_kwh\": 170, \"solar_kwh\": 140, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 15, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 16, \"demand_kwh\": 170, \"solar_kwh\": 45, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 185, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 22},\n    {\"hour\": 18, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 28},\n    {\"hour\": 19, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 20, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 26},\n    {\"hour\": 21, \"demand_kwh\": 175, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 22, \"demand_kwh\": 135, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 23, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 240,\n    \"initial_energy_kwh\": 120,\n    \"minimum_energy_kwh\": 30,\n    \"max_charge_kwh_per_hour\": 60,\n    \"max_discharge_kwh_per_hour\": 60\n  }\n}",
+      "expected_en": "max_grid_window, hours [18, 19, 20], max_grid_kwh 155.0",
+      "expected_bn": "max_grid_window, hours [18, 19, 20], max_grid_kwh 155.0",
+      "totals": "2430.0 kWh / 33950.00 BDT / peak 175.0 kWh",
+      "source": "verified against the live service"
+    },
+    {
+      "id": "P6",
+      "group": "paraphrase",
+      "title_en": "no_op - a note that must be ignored",
+      "title_bn": "no_op - যে note বাদ দিতে হবে",
+      "notes": [
+        "The library extended its opening hours during exam week."
+      ],
+      "body": "{\n  \"scenario_id\": \"PARAPHRASE-P6\",\n  \"operator_notes\": [\n    \"The library extended its opening hours during exam week.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 110, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 130, \"solar_kwh\": 20, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 150, \"solar_kwh\": 50, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 175, \"solar_kwh\": 130, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 11, \"demand_kwh\": 180, \"solar_kwh\": 160, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 185, \"solar_kwh\": 180, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 13, \"demand_kwh\": 180, \"solar_kwh\": 170, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 14, \"demand_kwh\": 170, \"solar_kwh\": 140, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 15, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 16, \"demand_kwh\": 170, \"solar_kwh\": 45, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 185, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 22},\n    {\"hour\": 18, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 28},\n    {\"hour\": 19, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 20, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 26},\n    {\"hour\": 21, \"demand_kwh\": 175, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 22, \"demand_kwh\": 135, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 23, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 240,\n    \"initial_energy_kwh\": 120,\n    \"minimum_energy_kwh\": 30,\n    \"max_charge_kwh_per_hour\": 60,\n    \"max_discharge_kwh_per_hour\": 60\n  }\n}",
+      "expected_en": "no_op, applies false, structured_adjustment null",
+      "expected_bn": "no_op, applies false, structured_adjustment null",
+      "totals": "2430.0 kWh / 33950.00 BDT / peak 175.0 kWh",
+      "source": "verified against the live service"
+    },
+    {
+      "id": "M1",
+      "group": "multi-note",
+      "title_en": "Two notes at once - solar reduction and a battery reserve",
+      "title_bn": "একসাথে দুইটা note - সোলার হ্রাস আর battery reserve",
+      "notes": [
+        "Expect a 55% reduction in rooftop solar from 9 AM to 11 AM.",
+        "Keep at least 115 kWh in the battery from 7 PM until 10 PM."
+      ],
+      "body": "{\n  \"scenario_id\": \"MULTI-1\",\n  \"operator_notes\": [\n    \"Expect a 55% reduction in rooftop solar from 9 AM to 11 AM.\",\n    \"Keep at least 115 kWh in the battery from 7 PM until 10 PM.\"\n  ],\n  \"hours\": [\n    {\"hour\": 0, \"demand_kwh\": 90, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 1, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 2, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 3, \"demand_kwh\": 80, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 4, \"demand_kwh\": 85, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 5},\n    {\"hour\": 5, \"demand_kwh\": 95, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 6},\n    {\"hour\": 6, \"demand_kwh\": 110, \"solar_kwh\": 5, \"tariff_bdt_per_kwh\": 8},\n    {\"hour\": 7, \"demand_kwh\": 130, \"solar_kwh\": 20, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 8, \"demand_kwh\": 150, \"solar_kwh\": 50, \"tariff_bdt_per_kwh\": 12},\n    {\"hour\": 9, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 10, \"demand_kwh\": 175, \"solar_kwh\": 130, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 11, \"demand_kwh\": 180, \"solar_kwh\": 160, \"tariff_bdt_per_kwh\": 16},\n    {\"hour\": 12, \"demand_kwh\": 185, \"solar_kwh\": 180, \"tariff_bdt_per_kwh\": 15},\n    {\"hour\": 13, \"demand_kwh\": 180, \"solar_kwh\": 170, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 14, \"demand_kwh\": 170, \"solar_kwh\": 140, \"tariff_bdt_per_kwh\": 13},\n    {\"hour\": 15, \"demand_kwh\": 165, \"solar_kwh\": 90, \"tariff_bdt_per_kwh\": 14},\n    {\"hour\": 16, \"demand_kwh\": 170, \"solar_kwh\": 45, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 17, \"demand_kwh\": 185, \"solar_kwh\": 10, \"tariff_bdt_per_kwh\": 22},\n    {\"hour\": 18, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 28},\n    {\"hour\": 19, \"demand_kwh\": 215, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 30},\n    {\"hour\": 20, \"demand_kwh\": 205, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 26},\n    {\"hour\": 21, \"demand_kwh\": 175, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 18},\n    {\"hour\": 22, \"demand_kwh\": 135, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 10},\n    {\"hour\": 23, \"demand_kwh\": 105, \"solar_kwh\": 0, \"tariff_bdt_per_kwh\": 7}\n  ],\n  \"battery\": {\n    \"capacity_kwh\": 240,\n    \"initial_energy_kwh\": 120,\n    \"minimum_energy_kwh\": 30,\n    \"max_charge_kwh_per_hour\": 60,\n    \"max_discharge_kwh_per_hour\": 60\n  }\n}",
+      "expected_en": "solar_reduction [9, 10] factor 0.45 then minimum_battery_reserve [19, 20, 21] 115.0",
+      "expected_bn": "solar_reduction [9, 10] factor 0.45, তারপর minimum_battery_reserve [19, 20, 21] 115.0",
+      "totals": "2551.0 kWh / 36997.00 BDT / peak 200.0 kWh",
+      "source": "verified against the live service"
+    }
+  ],
+  "error_cases": [
+    {
+      "id": "E1",
+      "title_en": "GET on a POST-only endpoint",
+      "title_bn": "POST-only endpoint-এ GET",
+      "how_en": "Open https://brian-sheffield-surely-fly.trycloudflare.com/optimize-energy in the browser",
+      "how_bn": "ব্রাউজারে https://brian-sheffield-surely-fly.trycloudflare.com/optimize-energy খোলো",
+      "expected_en": "405 {\"detail\":\"Method Not Allowed\"}",
+      "expected_bn": "405 {\"detail\":\"Method Not Allowed\"}"
+    },
+    {
+      "id": "E2",
+      "title_en": "Unknown path",
+      "title_bn": "অজানা path",
+      "how_en": "Open https://brian-sheffield-surely-fly.trycloudflare.com/no-such-path in the browser",
+      "how_bn": "ব্রাউজারে https://brian-sheffield-surely-fly.trycloudflare.com/no-such-path খোলো",
+      "expected_en": "404 {\"detail\":\"Not Found\"}",
+      "expected_bn": "404 {\"detail\":\"Not Found\"}"
+    },
+    {
+      "id": "E3",
+      "title_en": "Empty request body",
+      "title_bn": "ফাঁকা request body",
+      "how_en": "/docs -> POST /optimize-energy -> Try it out -> clear the body -> Execute",
+      "how_bn": "/docs → POST /optimize-energy → Try it out → body খালি করে দাও → Execute",
+      "expected_en": "422 {\"error\":{\"type\":\"invalid_request\",...}} - a clean error, no crash, no key",
+      "expected_bn": "422 {\"error\":{\"type\":\"invalid_request\",...}} - পরিষ্কার error, crash নেই, key ফাঁস নেই"
+    }
+  ]
+}
